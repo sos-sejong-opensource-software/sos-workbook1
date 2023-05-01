@@ -8,12 +8,15 @@ from .serializers import PostSerializer, PostDetailSerializer
 
 
 class ListPostView(ListCreateAPIView):
-    # 00-00 post 리스트 전체 조회
     # 00-01 post 생성
     queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    list_serializer_class = PostSerializer
-    create_serializer_class = PostDetailSerializer
+    serializer_class = PostDetailSerializer
+
+    # 00-00 post 리스트 전체 조회
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = PostSerializer(queryset, many=True)
+        return Response(serializer.data, status=HTTP_200_OK)
 
 
 class DetailPostView(APIView):
