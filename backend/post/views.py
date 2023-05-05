@@ -1,13 +1,17 @@
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+
+from djangoreactapi.permissions import IsOwnerOrReadOnly
 from .models import Post
 from .serializers import PostSerializer, PostDetailSerializer
 
 
 class ListPostView(ListCreateAPIView):
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     # 00-01 post 생성
     queryset = Post.objects.all()
     serializer_class = PostDetailSerializer
@@ -20,6 +24,7 @@ class ListPostView(ListCreateAPIView):
 
 
 class DetailPostView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     # 00-02 post 상세 조회
     def get(self, request, pk):
         post = get_object_or_404(Post, id=pk)
@@ -36,8 +41,7 @@ class DetailPostView(APIView):
             return Response(serializer.data, status=HTTP_200_OK)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
-    """
-    작성자만 삭제할 수 있도록 구현
-    def delete(self, request):
+    def delete(self, request, pk):
         post = get_object_or_404(Post, id=pk)
-    """
+        post.delete()
+        # serializer = PostSerializer(post)
