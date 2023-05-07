@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN, HTTP_204_NO_CONTENT
 from .models import Post
 from .serializers import PostSerializer, PostDetailSerializer
 
@@ -41,3 +41,10 @@ class DetailPostView(APIView):
     def delete(self, request):
         post = get_object_or_404(Post, id=pk)
     """
+
+    def delete(self, request, pk):
+        post = get_object_or_404(Post, id=pk)
+        if post.created_user != request.user.id:
+            return Response({'detail': 'You do not have permission to delete this post.'}, status=HTTP_403_FORBIDDEN)
+        post.delete()
+        return Response(status=HTTP_204_NO_CONTENT)
