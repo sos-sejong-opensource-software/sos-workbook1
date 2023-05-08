@@ -1,3 +1,4 @@
+import jwt
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView, get_object_or_404
@@ -23,6 +24,7 @@ class ListPostView(ListCreateAPIView):
         return Response(serializer.data, status=HTTP_200_OK)
 
 
+
 class DetailPostView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     # 00-02 post 상세 조회
@@ -42,6 +44,10 @@ class DetailPostView(APIView):
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
+        # 토큰을 받아서 user인증하는 방법 구현중
+        token = request.GET('token')
+        print(token)
+        # payload = jwt.decode(token,)
         post = get_object_or_404(Post, id=pk)
         post.delete()
         # serializer = PostSerializer(post)
